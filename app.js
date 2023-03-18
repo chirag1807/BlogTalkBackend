@@ -11,7 +11,7 @@ const mutedRoute = require('./api/routes/mutedRoutes');
 const favTopicsRoute = require('./api/routes/favTopicsRoutes');
 const blogPostRoute = require('./api/routes/blogPostRoutes');
 
-mongoose.connect('mongodb+srv://chiragmakwana1807:gf3rBSngWmJpDXxh@blogtalkcluster.dhlz3bk.mongodb.net/?retryWrites=true&w=majority');
+mongoose.connect(process.env.mongoose_link_for_connection);
 
 mongoose.connection.on('error', err=>{
     console.log('Connection Failed');

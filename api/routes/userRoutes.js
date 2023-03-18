@@ -22,19 +22,34 @@ cloudinary.config({
   
   const upload = multer({ storage: storage });
 
-  
-
-
-
 
 router.get('/', (req, res) => {
     res.status(200).send("userRoute");
 })
 
+async function uploadToCloudinary(){
+    if(req.file.image == null){
+        console.log("yes");
+    }
+    else{
+        console.log("no");
+    }
+    // upload.single("image")
+}
+
 router.post('/', upload.single("image"), (req, res) => {
     const createUser = async () => {
         try {
             console.log(req.file.path);
+
+            // uploadToCloudinary,
+
+            // if(req.file.path == null){
+            //     console.log("null");
+            // }
+            // else{
+            //     console.log(req.file.path);
+            // }
 
             // const user = new userModel({
             //     name: req.body.name,
