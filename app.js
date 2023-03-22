@@ -26,7 +26,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse application/json
 app.use(bodyParser.json())
 
-
 app.use('/api/user', userRoute);
 app.use('/api/userPosts', userPostRoute);
 app.use('/api/userFollowers', userFollowersRoute);

@@ -1,79 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const favTopicsModel = require('../models/favTopicsModel');
+const favTopicsController = require('../controllers/favTopicsControllers');
 
-router.get('/', (req, res) => {
-    const getFavTopics = async () => {
-        const {uid} = req.query;
-        try {
-            const result = await favTopicsModel.find({uid: uid});
-            res.status(200).json({
-                result: result,
-                msg: "FavTopics Fetched Successfully"
-            });
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-        }
-    }
+router.route('/').get(favTopicsController.getFavTopics);
 
-    getFavTopics();
-});
+router.route('/').post(favTopicsController.setFavTopics);
 
-router.post('/', (req, res) => {
-    const {uid, favTopics} = req.body;
-    const setFavTopics = async () => {
-        try {
-            const favTopicsResult = new favTopicsModel({
-                uid: uid,
-                favTopicsCount: favTopics.length,
-                favTopics: favTopics
-            })
-            
-            const result = await favTopicsResult.save();
-            res.status(200).json({
-                result: result,
-                msg: "favTopics Setted Successfully"
-            })
-            console.log(result);
-    
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-    }
-    
-    setFavTopics();
-});
-
-router.patch('/', async (req, res) => {
-    const updateFavTopics = async () => {
-        const {uid, favTopics} = req.body;
-        try {
-            const user = await favTopicsModel.findOneAndUpdate({uid: uid}, {
-                $set: {
-                    favTopics: favTopics,
-                    favTopicsCount: favTopics.length
-                },
-            })
-            res.status(200).json({
-                result: user,
-                msg: "FavTopics Updated Succesfully"
-            })
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-    }
-
-    updateFavTopics();
-});
+router.route('/').patch(favTopicsController.updateFavTopics);
 
 module.exports = router;
 

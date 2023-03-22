@@ -1,122 +1,14 @@
-const { query } = require('express');
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const userFollowersModel = require('../models/userFollowersModel');
+const userFollowersControllers = require('../controllers/userFollowersControllers');
 
-router.get('/', (req, res, next) => {
-    const getUserFollowers = async () => {
-        try {
-            const result = await userFollowersModel.find({uid: req.query.uid});
+router.route('/').get(userFollowersControllers.getFollowers);
 
-            res.status(200).json({
-                msg: "User Followers Fetched Successfully",
-                result: result
-            });
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-    }
-    
-    getUserFollowers();
-});
+router.route('/').post(userFollowersControllers.setFollowers);
 
-router.post('/', (req, res) => {
-    const setUserFollowers = async () => {
-        try {
-            const userFollowers = new userFollowersModel({
-                uid: req.body.uid,
-                followerCount: req.body.followerCount,
-                followersUid: req.body.followersUid,
-            })
-            
-            const result = await userFollowers.save();
-            res.status(200).json({
-                msg: "User Followers Setted Successfully"
-            })
-            console.log(result);
-    
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-    }
-    
-    setUserFollowers();
-});
+router.route('/').patch(userFollowersControllers.updateFollowers);
 
-router.patch('/', (req, res) => {
-    const updateUserFollowers = async () => {
-        try{
-            const user = await userFollowersModel.find({uid: req.body.uid})
-            let indicator = 0;
-            for (let i = 0; i < user[0].followersUid.length; i++) {
-                if(user[0].followersUid[i].followerUid == req.body.followersUid.followerUid){
-                    indicator = 1;
-                    user[0].followersUid[i].isFollowing = req.body.followersUid.isFollowing;
-                    user[0].save();
-                    break;
-                }
-            }
-            if(indicator == 0){
-                user[0].followerCount++;
-                user[0].followersUid.push(req.body.followersUid);
-                user[0].save();
-            }
-
-            res.status(201).json({
-                msg: "Favorite Topics Updated Successfully"
-            })
-            console.log("Favorite Topics Updated Successfully");
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-    }
-
-    updateUserFollowers();
-});
-
-
-router.delete('/', (req, res) => {
-    const deleteUserFollower = async () => {
-        try {
-            console.log(req.body.uid);
-            
-            const user = await userFollowersModel.findOneAndUpdate({uid: req.body.uid},
-                {
-                    $pull: {
-                        "followersUid": {
-                            "followerUid": req.body.followersUid.followerUid,
-                        }
-                    },
-                    $inc: {
-                        "followerCount": -1
-                    }
-                }
-            );
-
-            res.status(201).json({
-                msg: "User Follower Deleted Successfully",
-                result: user
-            })
-        } catch (error) {
-            res.status(400).json({
-                msg: error
-            })
-            console.log(error);
-        }
-
-    }
-    deleteUserFollower();
-})
+router.route('/').delete(userFollowersControllers.deleteFollower);
 
 module.exports = router;
 
