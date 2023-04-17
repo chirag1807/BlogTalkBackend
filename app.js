@@ -10,6 +10,7 @@ const userFollowingRoute = require('./api/routes/userFollowingRoutes');
 const mutedRoute = require('./api/routes/mutedRoutes');
 const favTopicsRoute = require('./api/routes/favTopicsRoutes');
 const blogPostRoute = require('./api/routes/blogPostRoutes');
+const topicNameIdRoute = require('./api/routes/topicNameIds');
 
 mongoose.connect(process.env.mongoose_link_for_connection);
 
@@ -33,6 +34,7 @@ app.use('/api/userFollowing', userFollowingRoute);
 app.use('/api/muted', mutedRoute);
 app.use('/api/favTopics', favTopicsRoute);
 app.use('/api/blogPost', blogPostRoute);
+app.use('/api/topicNameId', topicNameIdRoute);
 
 app.use('/', (req, res) => {
     res.status(200).json(({

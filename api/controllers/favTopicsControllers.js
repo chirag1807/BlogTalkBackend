@@ -1,10 +1,11 @@
 const favTopicsModel = require('../models/favTopicsModel');
+const topicNameIdsModel = require('../models/topicNameIds');
 
 const getFavTopics = (req, res) => {
     const getUserFavTopics = async () => {
-        const {uid} = req.query;
+        const {id} = req.query;
         try {
-            const result = await favTopicsModel.find({uid: uid});
+            const result = await favTopicsModel.find({_id: id});
             res.status(200).json({
                 result: result,
                 msg: "FavTopics Fetched Successfully"
@@ -21,21 +22,27 @@ const getFavTopics = (req, res) => {
 
 
 const setFavTopics = (req, res) => {
-    const {uid, favTopics} = req.body;
     const setUserFavTopics = async () => {
         try {
+            const {id, favTopics} = req.body;
+            for(let i=0; i< favTopics.length; i++){
+                const result = await topicNameIdsModel.find({topicName: favTopics[i]});
+                result[0].followed = result[0].followed + 1;
+                await result[0].save();
+                const topicId = result[0].topicId;
+                favTopics[i] = topicId;
+            }
+
             const favTopicsResult = new favTopicsModel({
-                uid: uid,
+                _id: id,
                 favTopicsCount: favTopics.length,
                 favTopics: favTopics
             })
-            
-            const result = await favTopicsResult.save();
+            const result1 = await favTopicsResult.save();
             res.status(200).json({
-                result: result,
+                result: result1,
                 msg: "favTopics Setted Successfully"
             })
-            console.log(result);
     
         } catch (error) {
             res.status(400).json({
@@ -51,14 +58,27 @@ const setFavTopics = (req, res) => {
 
 const updateFavTopics = (req, res) => {
     const updateUserFavTopics = async () => {
-        const {uid, favTopics} = req.body;
+        const {id, favTopics} = req.body;
         try {
-            const user = await favTopicsModel.findOneAndUpdate({uid: uid}, {
+
+            const result1 = await favTopicsModel.find({_id: id});
+
+            for(let i=0; i< favTopics.length; i++){
+                const result = await topicNameIdsModel.find({topicName: favTopics[i]});
+                const topicId = result[0].topicId;
+                favTopics[i] = topicId;
+                if(!(result1[0].favTopics.includes(favTopics[i]))){
+                    result[0].followed = result[0].followed + 1;
+                    await result[0].save();
+                }
+            }
+
+            const user = await favTopicsModel.findOneAndUpdate({_id: id}, {
                 $set: {
                     favTopics: favTopics,
                     favTopicsCount: favTopics.length
                 },
-            })
+            }, {new: true})
             res.status(200).json({
                 result: user,
                 msg: "FavTopics Updated Succesfully"
@@ -74,4 +94,77 @@ const updateFavTopics = (req, res) => {
     updateUserFavTopics();
 }
 
-module.exports = {getFavTopics, setFavTopics, updateFavTopics};
+const updateAddOneFavTopic = (req, res) => {
+    const updateUserAddOneFavTopic = async () => {
+        let {id, favTopic} = req.body;
+        try {
+
+            const result = await topicNameIdsModel.find({topicName: favTopic});
+            result[0].followed = result[0].followed + 1;
+            await result[0].save();
+            favTopic = result[0].topicId;
+
+            const user = await favTopicsModel.findOneAndUpdate({_id: id}, {
+                $addToSet: {
+                    "favTopics" : favTopic
+                },
+                $inc: {
+                    "favTopicsCount": 1
+                },
+            }, {new: true})
+            // .sort({favTopics: 1})
+            ;
+
+            res.status(200).json({
+                result: user,
+                msg: "FavTopics Updated Succesfully"
+            })
+        } catch (error) {
+            res.status(400).json({
+                msg: error
+            })
+            console.log(error);
+        }
+    }
+
+    updateUserAddOneFavTopic();
+}
+
+const deleteOneFavTopic = (req, res) => {
+    const deleteOneFavTopic = async () => {
+        let {id, favTopic} = req.body;
+        try {
+
+            const result = await topicNameIdsModel.find({topicName: favTopic});
+            if(result[0].followed != 0){
+                result[0].followed = result[0].followed - 1;
+                await result[0].save();
+            }
+            favTopic = result[0].topicId;
+
+            const user = await favTopicsModel.findOneAndUpdate({_id: id}, {
+                $pull: {
+                    "favTopics" : favTopic
+                },
+                
+                $inc: {
+                    "favTopicsCount": -1
+                },
+            }, {new: true});
+
+            res.status(200).json({
+                result: user,
+                msg: "FavTopics Updated Succesfully"
+            })
+        } catch (error) {
+            res.status(400).json({
+                msg: error
+            })
+            console.log(error);
+        }
+    }
+
+    deleteOneFavTopic();
+}
+
+module.exports = {getFavTopics, setFavTopics, updateFavTopics, updateAddOneFavTopic, deleteOneFavTopic};

@@ -8,6 +8,10 @@ router.route('/').post(favTopicsController.setFavTopics);
 
 router.route('/').patch(favTopicsController.updateFavTopics);
 
+router.route('/addToFav').patch(favTopicsController.updateAddOneFavTopic);
+
+router.route('/deleteFromFav').patch(favTopicsController.deleteOneFavTopic);
+
 module.exports = router;
 
 

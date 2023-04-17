@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const mutedModel = require('../models/mutedModel');
+const mutedWriterTopicControllers = require('../controllers/mutedControllers');
 
-router.get('/', (req, res) => {
-    res.status(200).send("mutedRoute");
-})
+router.route('/').get(mutedWriterTopicControllers.getMutedTopicWrites);
+
+router.route('/').post(mutedWriterTopicControllers.setMutedTopicWrites);
+
+router.route('/addWriter').patch(mutedWriterTopicControllers.updateMutedAddWriter);
+router.route('/removeWriter').patch(mutedWriterTopicControllers.updateMutedRemoveWriter);
+router.route('/addTopic').patch(mutedWriterTopicControllers.updateMutedAddTopic);
+router.route('/removeTopic').patch(mutedWriterTopicControllers.updateMutedRemoveTopic);
 
 module.exports = router;

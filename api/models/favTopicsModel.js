@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
 const favTopicSchema = mongoose.Schema({
-    uid: {
-        type: String,
-        required: true,
-        unique: true
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     },
     favTopicsCount: {
         type: Number,

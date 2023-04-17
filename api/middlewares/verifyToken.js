@@ -6,9 +6,9 @@ module.exports = (req, res, next) => {
         console.log(req.headers['authorization']);
         const accessToken = req.headers.authorization.split(" ")[1];
         console.log(accessToken);
-        const uid = jwt.verify(accessToken, secret_key_Access_Token);
-        if(uid != null){
-            req.headers = uid;
+        const result = jwt.verify(accessToken, secret_key_Access_Token);
+        if(result != null){
+            req.headers = result;
             next();
         }
         else{

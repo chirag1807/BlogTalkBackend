@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
-    uid: {
-        type: String
-    },
+    // uid: {
+    //     type: String
+    // },
     name: {
         type: String,
         required: true
@@ -32,6 +32,42 @@ const userSchema = mongoose.Schema({
     sendNotification: {
         type: Boolean,
         default: true
+    },
+    favTopicsCount: {
+        type: Number,
+        default: 0
+    },
+    favTopics: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'favTopics',
+        require: true,
+        auto: true
+    },
+    followersCount: {
+        type: Number,
+        default: 0
+    },
+    followers: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userFollowers',
+        require: true,
+        auto: true
+    },
+    followingsCount: {
+        type: Number,
+        default: 0
+    },
+    followings: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userFollowings',
+        require: true,
+        auto: true
+    },
+    muted: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Muted',
+        require: true,
+        auto: true
     }
 });
 

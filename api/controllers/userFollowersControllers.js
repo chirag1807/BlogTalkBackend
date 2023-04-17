@@ -3,7 +3,7 @@ const userFollowersModel = require('../models/userFollowersModel');
 const getFollowers = (req, res) => {
     const getUserFollowers = async () => {
         try {
-            const result = await userFollowersModel.find({uid: req.query.uid});
+            const result = await userFollowersModel.find({_id: req.query.id});
 
             res.status(200).json({
                 msg: "User Followers Fetched Successfully",
@@ -24,7 +24,7 @@ const setFollowers = (req, res) => {
     const setUserFollowers = async () => {
         try {
             const userFollowers = new userFollowersModel({
-                uid: req.body.uid,
+                _id: req.body.id,
                 followerCount: req.body.followerCount,
                 followersUid: req.body.followersUid,
             })
@@ -49,7 +49,7 @@ const setFollowers = (req, res) => {
 const updateFollowers = (req, res) => {
     const updateUserFollowers = async () => {
         try{
-            const user = await userFollowersModel.find({uid: req.body.uid})
+            const user = await userFollowersModel.find({_id: req.body.id})
             let indicator = 0;
             for (let i = 0; i < user[0].followersUid.length; i++) {
                 if(user[0].followersUid[i].followerUid == req.body.followersUid.followerUid){
@@ -83,9 +83,9 @@ const updateFollowers = (req, res) => {
 const deleteFollower = (req, res) => {
     const deleteUserFollower = async () => {
         try {
-            console.log(req.body.uid);
+            console.log(req.body.id);
             
-            const user = await userFollowersModel.findOneAndUpdate({uid: req.body.uid},
+            const user = await userFollowersModel.findOneAndUpdate({_id: req.body.id},
                 {
                     $pull: {
                         "followersUid": {

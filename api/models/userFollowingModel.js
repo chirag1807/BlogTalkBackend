@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const userFollowingSchema = mongoose.Schema({
-    uid: {
-        type: String,
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     followingCount: {

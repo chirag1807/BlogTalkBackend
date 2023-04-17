@@ -8,9 +8,13 @@ const secret_key_Access_Token = process.env.secret_key_Access_Token;
 const secret_key_Refresh_Token = process.env.secret_key_Refresh_Token;
 const api_key_for_sendgrid_mail = process.env.api_key_for_sendgrid_mail;
 
-const generateAccessToken = (uid) => {
+const generateAccessToken = (uid, favTopicsId, followerId, followingId, mutedId) => {
     const accessToken = jwt.sign({
-        uid: uid
+        uid: uid,
+        favTopicsId: favTopicsId,
+        followerId: followerId,
+        followingId: followingId,
+        mutedId: mutedId
     },
     secret_key_Access_Token,
     {
@@ -21,9 +25,13 @@ const generateAccessToken = (uid) => {
     return accessToken;
 }
 
-const generateRefreshToken = (uid) => {
+const generateRefreshToken = (uid, favTopicsId, followerId, followingId, mutedId) => {
     const refreshToken = jwt.sign({
-        uid: uid
+        uid: uid,
+        favTopicsId: favTopicsId,
+        followerId: followerId,
+        followingId: followingId,
+        mutedId: mutedId
     },
     secret_key_Refresh_Token,
     {
@@ -45,8 +53,10 @@ const resetToken = (req, res) => {
                 })
             }
             else{
-                const accessToken = generateAccessToken(payload.uid);
-                refreshToken = generateRefreshToken(payload.uid);
+                const accessToken = generateAccessToken(payload.uid, payload.favTopicsId,
+                    payload.followerId, payload.followingId, payload.mutedId);
+                refreshToken = generateRefreshToken(payload.uid, payload.favTopicsId,
+                    payload.followerId, payload.followingId, payload.mutedId);
 
                 res.status(200).json({
                     accessToken: accessToken,
@@ -64,7 +74,8 @@ const getUser = (req, res) => {
     const getParticularUser = async () => {
             const headers = req.headers;
             try {
-                const result = await userModel.find({uid: headers.uid});
+                const result = await userModel.find({_id: headers.uid}).populate("followers").populate("favTopics");
+                console.log(result[0]);
                 res.status(200).json({
                 result: result[0],
                 msg: "User Details Fetched Successfully"

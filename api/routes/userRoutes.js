@@ -69,16 +69,18 @@ router.post('/', upload.single("image"), (req, res) => {
                     })
                     const result = await user.save();
         
-                    const addUid = await userModel.findOneAndUpdate({_id: result._id},
-                        {
-                            $set: {'uid': result._id}
-                        }    
-                    )
+                    // const addUid = await userModel.findOneAndUpdate({_id: result._id},
+                    //     {
+                    //         $set: {'uid': result._id}
+                    //     }    
+                    // )
 
-                    const accessToken = userControllers.generateAccessToken(result._id);
-                    const refreshToken = userControllers.generateRefreshToken(result._id);
-                    console.log(accessToken);
-                    console.log(refreshToken);
+                    const accessToken = userControllers.generateAccessToken(result._id,
+                        result.favTopics, result.followers, result.followings, result.muted);
+                    const refreshToken = userControllers.generateRefreshToken(result._id,
+                        result.favTopics, result.followers, result.followings, result.muted);
+
+                    console.log(result.followers.id);
                     
                     res.status(200).json({
                         result: result,
