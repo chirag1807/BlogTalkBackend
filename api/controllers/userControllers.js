@@ -74,12 +74,19 @@ const getUser = (req, res) => {
     const getParticularUser = async () => {
             const headers = req.headers;
             try {
-                const result = await userModel.find({_id: headers.uid}).populate("followers").populate("favTopics");
-                console.log(result[0]);
-                res.status(200).json({
-                result: result[0],
-                msg: "User Details Fetched Successfully"
-            })
+                const result = await userModel.find({_id: headers.uid})
+                // .populate("followers").populate("favTopics");
+                if(result[0] == undefined){
+                    res.status(401).json({
+                        msg: "Invalid Token"
+                    })
+                }
+                else {
+                    res.status(200).json({
+                    result: result[0],
+                    msg: "User Details Fetched Successfully"
+                })
+            }
             } catch (error) {
                 res.status(400).json({
                     msg: "Can't fetch User Details"
@@ -122,7 +129,7 @@ const forgotPasswordSendEmail = (req, res) => {
         const {email} = req.body;
         const isEmailExist = await userModel.find({emailId: email});
         if(isEmailExist[0] == undefined){
-            res.status(401).json({
+            res.status(510).json({
                 msg: "Email not exist"
             })
         }
@@ -215,7 +222,7 @@ const forgotPasswordVerifyCode = async (req, res) => {
         }
         else{
             res.status(401).json({
-                msg: "Please provide id first"
+                msg: "Please provide necessary details first"
             })
             console.log("there is no id");
         }
