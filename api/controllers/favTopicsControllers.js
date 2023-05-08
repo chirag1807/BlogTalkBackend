@@ -24,9 +24,10 @@ const getFavTopics = (req, res) => {
 const setFavTopics = (req, res) => {
     const setUserFavTopics = async () => {
         try {
-            const favTopics = req.body;
+            const favTopics = req.body.favTopics;
             const headers = req.headers;
             for(let i=0; i< favTopics.length; i++){
+                console.log(favTopics[i]);
                 const result = await topicNameIdsModel.find({topicName: favTopics[i]});
                 result[0].followed = result[0].followed + 1;
                 await result[0].save();
