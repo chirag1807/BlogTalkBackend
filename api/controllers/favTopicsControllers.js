@@ -59,10 +59,11 @@ const setFavTopics = (req, res) => {
 
 const updateFavTopics = (req, res) => {
     const updateUserFavTopics = async () => {
-        const {id, favTopics} = req.body;
+        const headers = req.headers;
+        const favTopics = req.body;
         try {
 
-            const result1 = await favTopicsModel.find({_id: id});
+            const result1 = await favTopicsModel.find({_id: headers.favTopicsId});
 
             for(let i=0; i< favTopics.length; i++){
                 const result = await topicNameIdsModel.find({topicName: favTopics[i]});
@@ -74,7 +75,7 @@ const updateFavTopics = (req, res) => {
                 }
             }
 
-            const user = await favTopicsModel.findOneAndUpdate({_id: id}, {
+            const user = await favTopicsModel.findOneAndUpdate({_id: headers.favTopicsId}, {
                 $set: {
                     favTopics: favTopics,
                     favTopicsCount: favTopics.length

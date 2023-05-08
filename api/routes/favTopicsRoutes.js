@@ -9,7 +9,8 @@ router.get('/', verifyToken, favTopicsController.getFavTopics);
 router.post('/', verifyToken, favTopicsController.setFavTopics);
 // router.route('/').post(favTopicsController.setFavTopics);
 
-router.route('/').patch(favTopicsController.updateFavTopics);
+router.patch('/', verifyToken, favTopicsController.updateFavTopics);
+// router.route('/').patch(favTopicsController.updateFavTopics);
 
 router.route('/addToFav').patch(favTopicsController.updateAddOneFavTopic);
 
