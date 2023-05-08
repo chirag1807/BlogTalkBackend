@@ -3,9 +3,9 @@ const topicNameIdsModel = require('../models/topicNameIds');
 
 const getFavTopics = (req, res) => {
     const getUserFavTopics = async () => {
-        const {id} = req.query;
+        const headers = req.headers;
         try {
-            const result = await favTopicsModel.find({_id: id});
+            const result = await favTopicsModel.find({_id: headers.favTopicsId});
             res.status(200).json({
                 result: result,
                 msg: "FavTopics Fetched Successfully"
@@ -24,7 +24,8 @@ const getFavTopics = (req, res) => {
 const setFavTopics = (req, res) => {
     const setUserFavTopics = async () => {
         try {
-            const {id, favTopics} = req.body;
+            const favTopics = req.body;
+            const headers = req.headers;
             for(let i=0; i< favTopics.length; i++){
                 const result = await topicNameIdsModel.find({topicName: favTopics[i]});
                 result[0].followed = result[0].followed + 1;
@@ -34,7 +35,7 @@ const setFavTopics = (req, res) => {
             }
 
             const favTopicsResult = new favTopicsModel({
-                _id: id,
+                _id: headers.favTopicsId,
                 favTopicsCount: favTopics.length,
                 favTopics: favTopics
             })

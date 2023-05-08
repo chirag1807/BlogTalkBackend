@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const favTopicsController = require('../controllers/favTopicsControllers');
+const verifyToken = require('../middlewares/verifyToken');
 
-router.route('/').get(favTopicsController.getFavTopics);
+router.get('/', verifyToken, favTopicsController.getFavTopics);
+// router.route('/').get(favTopicsController.getFavTopics);
 
-router.route('/').post(favTopicsController.setFavTopics);
+router.post('/', verifyToken, favTopicsController.setFavTopics);
+// router.route('/').post(favTopicsController.setFavTopics);
 
 router.route('/').patch(favTopicsController.updateFavTopics);
 

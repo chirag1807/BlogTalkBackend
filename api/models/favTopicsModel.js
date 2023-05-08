@@ -9,7 +9,7 @@ const favTopicSchema = mongoose.Schema({
         type: Number,
     },
     favTopics: {
-        type: [String],
+        type: [Number],
     }
 });
 

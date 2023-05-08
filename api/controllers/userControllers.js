@@ -108,8 +108,10 @@ const loginUser = (req, res) => {
                 })
             }
             else{
-                const accessToken = generateAccessToken(user[0].uid);
-                const refreshToken = generateRefreshToken(user[0].uid);
+                const accessToken = generateAccessToken(user[0]._id, user[0].favTopics,
+                    user[0].followers, user[0].followings, user[0].muted);
+                const refreshToken = generateRefreshToken(user[0]._id, user[0].favTopics,
+                    user[0].followers, user[0].followings, user[0].muted);
                 return res.status(200).json({
                     result: user[0],
                     accessToken: accessToken,
