@@ -7,6 +7,14 @@ const { json } = require('body-parser');
 const secret_key_Access_Token = process.env.secret_key_Access_Token;
 const secret_key_Refresh_Token = process.env.secret_key_Refresh_Token;
 const api_key_for_sendgrid_mail = process.env.api_key_for_sendgrid_mail;
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+
+cloudinary.config({
+    cloud_name: process.env.cloud_name, 
+    api_key: 877259119788592, 
+    api_secret: process.env.api_secret
+  });
 
 const generateAccessToken = (uid, favTopicsId, followerId, followingId, mutedId) => {
     const accessToken = jwt.sign({
@@ -95,6 +103,93 @@ const getUser = (req, res) => {
     }
 
     getParticularUser();
+}
+
+const postUser = (req, res) => {
+    const createUser = async () => {
+        try {
+            if(req.file){
+
+            var locaFilePath = req.file.path;
+
+            var dataAndUrl = await uploadToCloudinary(locaFilePath);
+            console.log(dataAndUrl);
+            
+            }
+
+            bcrypt.hash(req.body.password, 10, async (err, hash) => {
+                if(err){
+                    return res.status(500).json({
+                        msg: err
+                    })
+                }
+                else{
+                    const user = new userModel({
+                        name: req.body.name,
+                        bio: req.body.bio,
+                        emailId: req.body.emailId,
+                        password: hash,
+                        image: req.file ? dataAndUrl.url : "",
+                    })
+                    const result = await user.save();
+        
+                    // const addUid = await userModel.findOneAndUpdate({_id: result._id},
+                    //     {
+                    //         $set: {'uid': result._id}
+                    //     }    
+                    // )
+
+                    const accessToken = generateAccessToken(result._id,
+                        result.favTopics, result.followers, result.followings, result.muted);
+                    const refreshToken = generateRefreshToken(result._id,
+                        result.favTopics, result.followers, result.followings, result.muted);
+
+                    console.log(result.followers.id);
+                    
+                    res.status(200).json({
+                        result: result,
+                        accessToken: accessToken,
+                        refreshToken: refreshToken,
+                        msg: "User Created Successfully"
+                    })
+                }
+            })
+
+        }
+        catch (error) {
+            res.status(400).json({
+                msg: error
+            })
+        }
+    }
+
+    createUser();
+}
+
+async function uploadToCloudinary(locaFilePath) {
+  
+    var mainFolderName = "main";
+    var filePathOnCloudinary = mainFolderName + "/" + locaFilePath;
+
+    return cloudinary.uploader
+        .upload(locaFilePath)
+        .then((result) => {
+
+            // Remove file from local uploads folder
+            fs.unlinkSync(locaFilePath);
+  
+            return {
+                message: "Success",
+                url: result.url,
+            };
+        })
+        .catch((error) => {
+  
+            console.log(error);
+            // Remove file from local uploads folder
+            fs.unlinkSync(locaFilePath);
+            return { message: "Fail" };
+        });
 }
 
 const loginUser = (req, res) => {
@@ -234,7 +329,7 @@ const forgotPasswordVerifyCode = async (req, res) => {
     forgotUserPasswordVerifyCode();
 }
 
-module.exports = {getUser, generateAccessToken, generateRefreshToken, resetToken, loginUser, forgotPasswordSendEmail, forgotPasswordVerifyCode};
+module.exports = {getUser, postUser, generateAccessToken, generateRefreshToken, resetToken, loginUser, forgotPasswordSendEmail, forgotPasswordVerifyCode};
 
 
 // const verifyToken = (accessToken) => {
