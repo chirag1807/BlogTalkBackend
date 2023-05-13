@@ -32,9 +32,15 @@ const blogPostSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    views: {
+        type: [String]
+    },
     noOfViews: {
         type: Number,
         default: 0
+    },
+    likes: {
+        type: [String]
     },
     noOfLikes: {
         type: Number,

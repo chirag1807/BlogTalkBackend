@@ -108,7 +108,6 @@ async function uploadToCloudinary(locaFilePath) {
         .upload(locaFilePath)
         .then((result) => {
 
-            // Remove file from local uploads folder
             fs.unlinkSync(locaFilePath);
   
             return {
@@ -117,9 +116,6 @@ async function uploadToCloudinary(locaFilePath) {
             };
         })
         .catch((error) => {
-  
-            console.log(error);
-            // Remove file from local uploads folder
             fs.unlinkSync(locaFilePath);
             return { message: "Fail" };
         });
@@ -129,12 +125,88 @@ const updatePost = (req, res) => {
 
 }
 
+const updatePostLike = (req, res) => {
+    const updateUserPostLike = async () => {
+        const headers = req.headers;
+        try{
+            const result1 = await blogPostModel.find({_id: req.body.id});
+            let update;
+            if(result1[0].likes.includes(headers.uid)){
+                update = {
+                    $pull: {
+                        likes: headers.uid
+                    },
+                    $inc: {
+                        noOfLikes: -1
+                    }
+                }
+            }
+            else{
+                update = {
+                    $addToSet: {
+                        likes: headers.uid
+                    },
+                    $inc: {
+                        noOfLikes: 1
+                    }
+                }
+            }
+
+            const result = await blogPostModel.findOneAndUpdate({_id: req.body.id}, update, {upsert: true});
+
+            // const result = await blogPostModel.findOneAndUpdate({_id: req.body.id}, {
+            //     $pull: {
+            //         likes: headers.uid
+            //     },
+            //     $inc: {
+            //         noOfLikes: -1
+            //     }
+            // });
+
+            res.status(200).json({
+                result: result,
+                msg: "Like Added to Post"
+            })
+        } catch (error) {
+            res.status(400).json({
+                msg: "Can't Remove Like from Post"
+            })
+        }
+    }
+    updateUserPostLike();
+}
+
+const updatePostIncrView = (req, res) => {
+    const incrementPostView = async () => {
+        const headers = req.headers;
+        try{
+            const update = {
+              $addToSet: { views: headers.uid },
+              $inc: { noOfViews: 1 }
+            };
+            const options = { upsert: true };
+            const query = { views: { $ne: headers.uid } };
+            const result = await blogPostModel.findOneAndUpdate({_id: req.body.id}, query, update, options);
+
+            res.status(200).json({
+                // result: result,
+                msg: "View Added to Post"
+            })
+        } catch (error) {
+            res.status(400).json({
+                msg: "Can't Add View to Post"
+            })
+        }
+    }
+    incrementPostView();
+}
+
 const deletePost = (req, res) => {
     const deleteUserPost = async () => {
         try{
             const result = await blogPostModel.deleteOne({_id: req.body.id});
             res.status(200).json({
-                result: result[0],
+                // result: result[0],
                 msg: "Post Deleted Successfully"
             })
         } catch (error) {
@@ -146,4 +218,5 @@ const deletePost = (req, res) => {
     deleteUserPost();
 }
 
-module.exports = {getAllPosts, getParticularPosts, uploadPost, updatePost, deletePost};
+module.exports = {getAllPosts, getParticularPosts, uploadPost,
+    updatePost, updatePostLike, updatePostIncrView, deletePost};

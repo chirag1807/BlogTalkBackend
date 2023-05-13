@@ -28,7 +28,11 @@ router.get('/particular', blogPostControllers.getParticularPosts);
 
 router.post('/', upload.single("image"), verifyToken, blogPostControllers.uploadPost);
 
-router.patch('/', verifyToken, upload.single("image"), blogPostControllers.updatePost);
+router.patch('/', upload.single("image"), verifyToken, blogPostControllers.updatePost);
+
+router.patch('/updateLike', verifyToken, blogPostControllers.updatePostLike);
+
+router.patch('incrView', verifyToken, blogPostControllers.updatePostIncrView);
 
 router.delete('/', verifyToken, blogPostControllers.deletePost);
 
