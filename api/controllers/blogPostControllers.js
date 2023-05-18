@@ -15,8 +15,8 @@ const getAllPosts = (req, res) => {
         try{
             const result = await blogPostModel.find({author: headers.uid});
                 if(result[0] == undefined){
-                    res.status(401).json({
-                        msg: "Invalid Token"
+                    res.status(204).json({
+                        msg: "No Blog Post Available for this User"
                     })
                 }
                 else {
@@ -77,7 +77,7 @@ const uploadPost = (req, res) => {
             const post = new blogPostModel({
                 title: req.body.title,
                 content: req.body.content,
-                topic: req.body.topic,
+                topic: parseInt(req.body.topic),
                 author: headers.uid,
                 coverImage: req.file ? dataAndUrl.url : "",
                 readMinute: Math.ceil(readTimeMinutes),
