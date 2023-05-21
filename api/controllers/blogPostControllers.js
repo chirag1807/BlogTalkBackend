@@ -14,7 +14,7 @@ const getAllPosts = (req, res) => {
     const getUsersAllPost = async () => {
         const headers = req.headers;
         try{
-            const result = await blogPostModel.find({author: headers.uid});
+            const result = await blogPostModel.find({author: headers.uid}).populate("author");
                 if(result == undefined){
                     res.status(204).json({
                         msg: "No Blog Post Available for this User"
@@ -53,7 +53,7 @@ const getAllPosts = (req, res) => {
 const getParticularPosts = (req, res) => {
     const getUserParticularPost = async () => {
         try{
-            const result = await blogPostModel.find({_id: req.headers.id});
+            const result = await blogPostModel.find({_id: req.headers.id}).populate('author');
             if(result[0] == undefined){
                 res.status(401).json({
                     msg: "Invalid Token"
