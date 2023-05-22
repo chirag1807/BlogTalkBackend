@@ -1,4 +1,5 @@
 const blogPostModel = require('../models/blogPostModel');
+const userModel = require('../models/userModel');
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const jwt = require('jsonwebtoken');
@@ -14,25 +15,36 @@ const getAllPosts = (req, res) => {
     const getUsersAllPost = async () => {
         const headers = req.headers;
         try{
-            const result = await blogPostModel.find({author: headers.uid}).populate("author");
+            const result = await blogPostModel.find({author: headers.uid});
                 if(result == undefined){
                     res.status(204).json({
                         msg: "No Blog Post Available for this User"
                     })
                 }
                 else {
-                    const modifiedResult = result.map((document) => {
-                        const modifiedDocument = JSON.parse(JSON.stringify(document));
+                    // const modifiedResult = result.map((document) => {
+                    //     const modifiedDocument = JSON.parse(JSON.stringify(document));
 
-                        if(modifiedDocument.likes.includes(headers.uid)){
-                            modifiedDocument.likedOrNot = 1;
-                        }
-                        else{
-                            modifiedDocument.likedOrNot = 0;
-                        }
+                    //     if(modifiedDocument.likes.includes(headers.uid)){
+                    //         modifiedDocument.likedOrNot = 1;
+                    //     }
+                    //     else{
+                    //         modifiedDocument.likedOrNot = 0;
+                    //     }
 
-                        return modifiedDocument;
-                    })  
+                    //     return modifiedDocument;
+                    // })
+
+                    const modifiedResult = result.map(item => {
+                        return {
+                            id: item._id,
+                            title: item.title,
+                            topic: item.topic,
+                            image: item.coverImage,
+                            publishedAt: item.publishedAt,
+                            readMinute: item.readMinute
+                        }
+                    })
 
                     res.status(200).json({
                     result: modifiedResult,
@@ -53,7 +65,7 @@ const getAllPosts = (req, res) => {
 const getParticularPosts = (req, res) => {
     const getUserParticularPost = async () => {
         try{
-            const result = await blogPostModel.find({_id: req.headers.id}).populate('author');
+            var result = await blogPostModel.find({_id: req.headers.id}).populate('author');
             if(result[0] == undefined){
                 res.status(401).json({
                     msg: "Invalid Token"
@@ -70,24 +82,26 @@ const getParticularPosts = (req, res) => {
                     else{
                         modifiedResult.likedOrNot = 0;
                     }
+                    // if(modifiedResult.views.includes(result1.uid)){
+                    //     modifiedResult.viewedOrNot = 1;
+                    // }
+                    // else{
+                    //     modifiedResult.viewedOrNot = 0;
+                    // }
+                    result = await userModel.find({_id: result[0].author.id}).populate('followers');
+                    if(result[0].followers ==  null){
+                        modifiedResult.followingOrNot = 0;
+                    }
+                    else if(result[0].followers.includes(result1.uid)){
+                        modifiedResult.followingOrNot = 1;
+                    }
+                    else{
+                        modifiedResult.followingOrNot = 0;
+                    }
                     res.status(200).json({
                         result: modifiedResult,
                         msg: "Post Fetched Successfully"
                     })
-                    // if(result[0].likes.includes(result1.uid)){
-                    //     res.status(200).json({
-                    //         result: result[0],
-                    //         likedOrNot: 1,
-                    //         msg: "Post Fetched Successfully"
-                    //     })
-                    // }
-                    // else{
-                    //     res.status(200).json({
-                    //         result: result[0],
-                    //         likedOrNot: 0,
-                    //         msg: "Post Fetched Successfully"
-                    //     })
-                    // }
                 }
                 else{
                     return res.status(401).json({
@@ -96,6 +110,7 @@ const getParticularPosts = (req, res) => {
                 }
             }
         } catch (error) {
+            console.log(error);
             res.status(400).json({
                 msg: "Can't fetch User Details"
             })
@@ -225,19 +240,22 @@ const updatePostIncrView = (req, res) => {
     const incrementPostView = async () => {
         const headers = req.headers;
         try{
-            const update = {
-              $addToSet: { views: headers.uid },
-              $inc: { noOfViews: 1 }
-            };
-            const options = { upsert: true };
-            const query = { views: { $ne: headers.uid } };
-            const result = await blogPostModel.findOneAndUpdate({_id: req.body.id}, query, update, options);
+            const result = await blogPostModel.findOneAndUpdate({ _id: req.body.id, views: { $ne: headers.uid } },
+                { $push: { views: headers.uid }, $inc: { noOfViews: 1 } },
+                { new: true });
 
-            res.status(200).json({
-                // result: result,
-                msg: "View Added to Post"
-            })
+            if(result){
+                res.status(200).json({
+                    msg: "View Added to Post"
+                })
+            }    
+            else{
+                res.status(200).json({
+                    msg: "View ould not be Added"
+                })
+            }
         } catch (error) {
+            console.log(error);
             res.status(400).json({
                 msg: "Can't Add View to Post"
             })

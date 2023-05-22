@@ -32,7 +32,7 @@ router.patch('/', upload.single("image"), verifyToken, blogPostControllers.updat
 
 router.patch('/updateLike', verifyToken, blogPostControllers.updatePostLike);
 
-router.patch('incrView', verifyToken, blogPostControllers.updatePostIncrView);
+router.patch('/incrView', verifyToken, blogPostControllers.updatePostIncrView);
 
 router.delete('/', verifyToken, blogPostControllers.deletePost);
 
