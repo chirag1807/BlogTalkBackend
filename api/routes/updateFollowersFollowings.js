@@ -8,10 +8,11 @@ router.patch('/', verifyToken, async (req, res) => {
     try {
         const headers = req.headers;
         if(req.body.indicator == 0){
+            //0 means add to followings, 1 means remove from followings
             let user = await userFollowingModel.find({_id: headers.followingId});
-        let user1 = await userFollowingModel.find({_id: req.body.followingId});
-        let user2 = await userFollowersModel.find({_id: req.body.followerId});
-        let indicator = 0;
+            let user1 = await userFollowingModel.find({_id: req.body.followingId});
+            let user2 = await userFollowersModel.find({_id: req.body.followerId});
+            let indicator = 0;
             for (let i = 0; i < user1[0].followingsUid.length; i++) {
                 if(user1[0].followingsUid[i].followingUid == headers.uid){
                     indicator = 1;

@@ -89,15 +89,9 @@ const getParticularPosts = (req, res) => {
                     //     modifiedResult.viewedOrNot = 0;
                     // }
                     result = await userModel.find({_id: result[0].author.id}).populate('followers');
-                    if(result[0].followers ==  null){
-                        modifiedResult.followingOrNot = 0;
-                    }
-                    else if(result[0].followers.includes(result1.uid)){
-                        modifiedResult.followingOrNot = 1;
-                    }
-                    else{
-                        modifiedResult.followingOrNot = 0;
-                    }
+                    let followingOrNot = result[0].followers.followersUid.some((obj) => obj.followerUid === result1.uid);
+                    modifiedResult.followingOrNot = followingOrNot ? 1 : 0;
+
                     res.status(200).json({
                         result: modifiedResult,
                         msg: "Post Fetched Successfully"
