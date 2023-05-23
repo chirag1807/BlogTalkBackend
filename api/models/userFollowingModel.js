@@ -7,6 +7,7 @@ const userFollowingSchema = mongoose.Schema({
     },
     followingCount: {
         type: Number,
+        default: 0,
         required: true
     },
     followingsUid: {
@@ -16,6 +17,7 @@ const userFollowingSchema = mongoose.Schema({
                 isFollowingBack: Boolean
             }
         ],
+        default: []
     }
 })
 

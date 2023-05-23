@@ -251,7 +251,7 @@ const updatePostIncrView = (req, res) => {
             }    
             else{
                 res.status(200).json({
-                    msg: "View ould not be Added"
+                    msg: "View Could not be Added"
                 })
             }
         } catch (error) {

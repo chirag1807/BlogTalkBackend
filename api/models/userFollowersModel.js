@@ -7,14 +7,19 @@ const userFollowersSchema = mongoose.Schema({
     },
     followerCount: {
         type: Number,
+        default: 0,
         required: true
     },
-    followersUid: [
+    followersUid: {
+        type: [
             {
                 followerUid: {type: String},
                 isFollowing: {type: Boolean}
-            }
-        ]
+            },
+            
+        ],
+        default: []
+    }
 })
 
 module.exports = mongoose.model('userFollowers', userFollowersSchema);

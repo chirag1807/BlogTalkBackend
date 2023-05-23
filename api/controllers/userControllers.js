@@ -1,5 +1,8 @@
 const userModel = require('../models/userModel');
 const forgotPasswordCodeModel = require('../models/forgotPasswordCodeModel');
+const userFollowingModel = require('../models/userFollowingModel');
+const userFollowersModel = require('../models/userFollowersModel');
+const mutedModel = require('../models/mutedModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const sgMail = require('@sendgrid/mail');
@@ -132,7 +135,22 @@ const postUser = (req, res) => {
                         image: req.file ? dataAndUrl.url : "",
                     })
                     const result = await user.save();
+
+                    const userFollowers = new userFollowersModel({
+                        _id: result.followers,
+                    })
+                    await userFollowers.save();
         
+                    const userFollowings = new userFollowingModel({
+                        _id: result.followings,
+                    })
+                    await userFollowings.save();
+                    
+                    const mutedTopicWriters = new mutedModel({
+                        _id: result.muted,
+                    })
+                    await mutedTopicWriters.save();
+
                     // const addUid = await userModel.findOneAndUpdate({_id: result._id},
                     //     {
                     //         $set: {'uid': result._id}

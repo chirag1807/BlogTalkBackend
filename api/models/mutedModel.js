@@ -10,14 +10,16 @@ const mutedSchema = mongoose.Schema({
         default: 0
     },
     writerIds: {
-        type: [String]
+        type: [String],
+        default: []
     },
     topicCounts: {
         type: Number,
         default: 0
     },
     topicIds: {
-        type: [String]
+        type: [String],
+        default: []
     }
 });
 
