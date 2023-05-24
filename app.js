@@ -4,12 +4,12 @@ const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRoute = require('./api/routes/userRoutes');
-const userPostRoute = require('./api/routes/userPostRoutes');
 const userFollowersRoute = require('./api/routes/userFollowersRoutes');
 const userFollowingRoute = require('./api/routes/userFollowingRoutes');
 const mutedRoute = require('./api/routes/mutedRoutes');
 const favTopicsRoute = require('./api/routes/favTopicsRoutes');
 const blogPostRoute = require('./api/routes/blogPostRoutes');
+const savePostRoute = require('./api/routes/savePostRoutes');
 const topicNameIdRoute = require('./api/routes/topicNameIds');
 const updateFollowersFollowings = require('./api/routes/updateFollowersFollowings');
 
@@ -29,12 +29,12 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 app.use('/api/user', userRoute);
-app.use('/api/userPosts', userPostRoute);
 app.use('/api/userFollowers', userFollowersRoute);
 app.use('/api/userFollowing', userFollowingRoute);
 app.use('/api/muted', mutedRoute);
 app.use('/api/favTopics', favTopicsRoute);
 app.use('/api/blogPost', blogPostRoute);
+app.use('/api/savePost', savePostRoute);
 app.use('/api/topicNameId', topicNameIdRoute);
 app.use('/api/updateFollowersFollowings', updateFollowersFollowings);
 

@@ -1,5 +1,6 @@
 const blogPostModel = require('../models/blogPostModel');
 const userModel = require('../models/userModel');
+const savePostModel = require('../models/savePostModel');
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const jwt = require('jsonwebtoken');
@@ -91,6 +92,10 @@ const getParticularPosts = (req, res) => {
                     result = await userModel.find({_id: result[0].author.id}).populate('followers');
                     let followingOrNot = result[0].followers.followersUid.some((obj) => obj.followerUid === result1.uid);
                     modifiedResult.followingOrNot = followingOrNot ? 1 : 0;
+
+                    result = await savePostModel.find({uid: result1.uid});
+                    let savedOrNot = result.some((obj) => obj._id === req.headers.id);
+                    modifiedResult.savedOrNot = savedOrNot ? 1 : 0;
 
                     res.status(200).json({
                         result: modifiedResult,
