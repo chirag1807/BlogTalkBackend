@@ -158,6 +158,63 @@ const uploadPost = (req, res) => {
     uploadUserPost();
 }
 
+const updatePost = (req, res) => {
+    const updateUserPost = async () => {
+        try{
+            if(req.file){
+                var locaFilePath = req.file.path;
+    
+                var dataAndUrl = await uploadToCloudinary(locaFilePath);
+            }
+
+            const blog = await blogPostModel.find({_id: req.body.id});
+
+            if(dataAndUrl == undefined){
+                if(blog[0].coverImage != ""){
+                    dataAndUrl = blog[0].coverImage;
+                }
+                else{
+                    dataAndUrl = "";
+                }
+            }
+
+            if(blog[0].title != req.body.title){
+                console.log("1");
+                blog[0].title = req.body.title;
+            }
+            if(blog[0].content != req.body.content){
+                console.log("2");
+                blog[0].content = req.body.content;
+                const contentWithoutLineBreaks = req.body.content.replace(/\n/g, ' ');
+
+                const readTimeMinutes = contentWithoutLineBreaks.trim().split(/\s+/).length / 180;
+                blog[0].readMinute = Math.ceil(readTimeMinutes);
+            }
+            if(blog[0].topic != req.body.topic){
+                console.log("3");
+                blog[0].topic = req.body.topic;
+            }
+            if(blog[0].coverImage != dataAndUrl){
+                console.log("4");
+                blog[0].coverImage = dataAndUrl;
+            }
+
+            await blog[0].save();
+            
+
+            res.status(200).json({
+                msg: "Blog Post Updated Successfully"
+            })
+        }
+        catch(e){
+            res.status(400).json({
+                msg: error
+            })
+        }
+    }
+    updateUserPost();
+}
+
 async function uploadToCloudinary(locaFilePath) {
   
     var mainFolderName = "main";
@@ -178,10 +235,6 @@ async function uploadToCloudinary(locaFilePath) {
             fs.unlinkSync(locaFilePath);
             return { message: "Fail" };
         });
-}
-
-const updatePost = (req, res) => {
-
 }
 
 const updatePostLike = (req, res) => {
