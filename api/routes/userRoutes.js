@@ -33,6 +33,9 @@ router.route('/verify-code').post(userControllers.forgotPasswordVerifyCode);
 
 router.post('/', upload.single("image"), userControllers.postUser);
 
+router.patch('/', verifyToken, userControllers.updateNameBio);
+
+router.patch('/emailPass', verifyToken, userControllers.updateEmailPass);
 
 module.exports = router;
 

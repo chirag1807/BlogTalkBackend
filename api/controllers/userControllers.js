@@ -210,13 +210,94 @@ async function uploadToCloudinary(locaFilePath) {
         });
 }
 
+const updateNameBio = (req, res) => {
+    const updateUserNameBio = async () => {
+        try{
+            const {name, bio} = req.body;
+            const user = await userModel.findOneAndUpdate({_id: req.headers.uid}, {
+                $set:{
+                    name: name,
+                    bio: bio
+                }
+            })
+            if(user){
+                res.status(200).json({
+                    msg: "User Details Updated"
+                })
+            }
+            else{
+                res.status(400).json({
+                    msg: "Can't Update User Details"
+                })
+            }
+        }
+        catch (error) {
+            res.status(400).json({
+                msg: "Can't Update User Details"
+            })
+        }
+    }
+    updateUserNameBio();
+}
+
+const updateEmailPass = (req, res) => {
+    const updateUserEmailPass = async () => {
+        try{
+            const {email, oldPass, newPass} = req.body;
+            const user = await userModel.find({emailId: email});
+            if(user[0] == undefined){
+                return res.status(403).json({
+                    msg:"Email doesn't exist."
+                })
+            }
+            else if(oldPass == newPass){
+                user[0].emailId = email;
+                await user[0].save();
+                res.status(200).json({
+                    msg:"Email and Password Updated Successfully"
+                })
+            }
+            else{
+                bcrypt.compare(oldPass, user[0].password, (err, result) => {
+                    if(err){
+                        return res.status(403).json({
+                            msg:"Password doesn't match."
+                        })
+                    }
+                    else{
+                        bcrypt.hash(newPass, 10, async (err, hash) => {
+                            if(err){
+                                res.status(500).json({
+                                    msg: "Password Can't be Encrypted"
+                                })
+                            }
+                            user[0].emailId = email;
+                            user[0].password = hash;
+                            await user[0].save();
+                            res.status(200).json({
+                                msg:"Email and Password Updated Successfully"
+                            })
+                        });
+                    }
+                })
+            }
+        }
+        catch (error) {
+            res.status(400).json({
+                msg: "Can't Update User Email Password"
+            })
+        }
+    }
+    updateUserEmailPass();
+}
+
 const loginUser = (req, res) => {
     const loginParticularUser = async () => {
         const {email, password} = req.body;
         const user = await userModel.find({emailId: email});
         bcrypt.compare(password, user[0].password, (err, result) => {
             if(!result){
-                return res.status(401).json({
+                return res.status(403).json({
                     msg:"Password doesn't match."
                 })
             }
@@ -347,7 +428,8 @@ const forgotPasswordVerifyCode = async (req, res) => {
     forgotUserPasswordVerifyCode();
 }
 
-module.exports = {getUser, postUser, generateAccessToken, generateRefreshToken, resetToken, loginUser, forgotPasswordSendEmail, forgotPasswordVerifyCode};
+module.exports = {getUser, postUser, generateAccessToken, generateRefreshToken, resetToken,
+    loginUser, updateNameBio, updateEmailPass, forgotPasswordSendEmail, forgotPasswordVerifyCode};
 
 
 // const verifyToken = (accessToken) => {
