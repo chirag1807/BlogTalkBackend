@@ -1,13 +1,27 @@
 const userFollowingModel = require('../models/userFollowingModel');
+const userModel = require('../models/userModel');
 
 const getFollowings = (req, res) => {
     const getUserFollowings = async () => {
         try {
-            const result = await userFollowingModel.find({_id: req.query.id});
+            const result = await userFollowingModel.find({_id: req.headers.followingId});
+
+            const followingsList = [];
+
+            for(const id of result[0].followingsUid){
+                const result1 = await userModel.find({_id: id.followingUid});
+                if(result1[0] != undefined){
+                    followingsList.push({
+                        followingUid: id.followingUid,
+                        isFollowingBack: id.isFollowingBack == true ? 1 : 0,
+                        user: result1[0]
+                    })
+                }
+            }
 
             res.status(200).json({
                 msg: "User Followings Fetched Successfully",
-                result: result
+                result: followingsList
             });
         } catch (error) {
             res.status(400).json({

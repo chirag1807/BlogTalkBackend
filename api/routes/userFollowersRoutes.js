@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userFollowersControllers = require('../controllers/userFollowersControllers');
+const verifyToken = require('../middlewares/verifyToken');
 
-router.route('/').get(userFollowersControllers.getFollowers);
+router.get('/', verifyToken, userFollowersControllers.getFollowers);
 
 router.route('/').post(userFollowersControllers.setFollowers);
 
