@@ -49,7 +49,8 @@ const getParticularPost = (req, res) => {
                     publishedAt: item.publishedAt,
                     readMinute: item.readMinute,
                     followingOrNot: followingOrNot,
-                    author: item.author
+                    author: item.author,
+                    createdByYou: item.author == req.headers.uid ? 1 : 0
                 }
             })
             

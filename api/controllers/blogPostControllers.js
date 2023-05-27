@@ -167,36 +167,24 @@ const updatePost = (req, res) => {
                 var dataAndUrl = await uploadToCloudinary(locaFilePath);
             }
 
-            const blog = await blogPostModel.find({_id: req.body.id});
+            let blog = await blogPostModel.find({_id: req.body.id});
 
-            if(dataAndUrl == undefined){
-                if(blog[0].coverImage != ""){
-                    dataAndUrl = blog[0].coverImage;
-                }
-                else{
-                    dataAndUrl = "";
-                }
+            if(dataAndUrl != undefined){
+                blog[0].coverImage = dataAndUrl.url;
             }
 
             if(blog[0].title != req.body.title){
-                console.log("1");
                 blog[0].title = req.body.title;
             }
             if(blog[0].content != req.body.content){
-                console.log("2");
                 blog[0].content = req.body.content;
                 const contentWithoutLineBreaks = req.body.content.replace(/\n/g, ' ');
-
                 const readTimeMinutes = contentWithoutLineBreaks.trim().split(/\s+/).length / 180;
+                
                 blog[0].readMinute = Math.ceil(readTimeMinutes);
             }
-            if(blog[0].topic != req.body.topic){
-                console.log("3");
-                blog[0].topic = req.body.topic;
-            }
-            if(blog[0].coverImage != dataAndUrl){
-                console.log("4");
-                blog[0].coverImage = dataAndUrl;
+            if(blog[0].topic != parseInt(req.body.topic)){
+                blog[0].topic = parseInt(req.body.topic);
             }
 
             await blog[0].save();
@@ -206,7 +194,8 @@ const updatePost = (req, res) => {
                 msg: "Blog Post Updated Successfully"
             })
         }
-        catch(e){
+        catch(error){
+            console.log(error);
             res.status(400).json({
                 msg: error
             })
