@@ -37,6 +37,8 @@ router.patch('/', verifyToken, userControllers.updateNameBio);
 
 router.patch('/emailPass', verifyToken, userControllers.updateEmailPass);
 
+router.patch('/sendEmailNotif', verifyToken, userControllers.updateSendEMailNotification);
+
 module.exports = router;
 
 

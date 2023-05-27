@@ -310,6 +310,37 @@ const updateEmailPass = (req, res) => {
     updateUserEmailPass();
 }
 
+const updateSendEMailNotification = (req, res) => {
+    const updateSendEmailNotif = async () => {
+        try{
+            const result = await userModel.find({_id: req.headers.uid});
+
+            if(req.body.indicator == 0){
+                if(result[0].sendEmail != req.body.value){
+                    result[0].sendEmail = req.body.value;
+                    await result[0].save();
+                }
+            }
+            else{
+                if(result[0].sendNotification != req.body.value){
+                    result[0].sendNotification = req.body.value;
+                    await result[0].save();
+                }
+            }
+
+            res.status(200).json({
+                msg: "Update Send Email/Notification Done Successfully"
+            })
+        }
+        catch (error) {
+            res.status(400).json({
+                msg: "Can't Update Send Email/Notification"
+            })
+        }
+    }
+    updateSendEmailNotif();
+}
+
 const loginUser = (req, res) => {
     const loginParticularUser = async () => {
         const {email, password} = req.body;
@@ -447,8 +478,8 @@ const forgotPasswordVerifyCode = async (req, res) => {
     forgotUserPasswordVerifyCode();
 }
 
-module.exports = {getUser, postUser, generateAccessToken, generateRefreshToken, resetToken,
-    loginUser, updateNameBio, updateEmailPass, forgotPasswordSendEmail, forgotPasswordVerifyCode};
+module.exports = {getUser, postUser, generateAccessToken, generateRefreshToken, resetToken, loginUser,
+    updateNameBio, updateEmailPass, updateSendEMailNotification, forgotPasswordSendEmail, forgotPasswordVerifyCode};
 
 
 // const verifyToken = (accessToken) => {
