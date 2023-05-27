@@ -3,6 +3,7 @@ const forgotPasswordCodeModel = require('../models/forgotPasswordCodeModel');
 const userFollowingModel = require('../models/userFollowingModel');
 const userFollowersModel = require('../models/userFollowersModel');
 const mutedModel = require('../models/mutedModel');
+const blogPostModel = require('../models/blogPostModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const sgMail = require('@sendgrid/mail');
@@ -85,7 +86,7 @@ const getUser = (req, res) => {
     const getParticularUser = async () => {
             const headers = req.headers;
             try {
-                const result = await userModel.find({_id: headers.uid})
+                let result = await userModel.find({_id: headers.uid})
                 // .populate("followers").populate("favTopics");
                 if(result[0] == undefined){
                     res.status(401).json({
@@ -93,8 +94,26 @@ const getUser = (req, res) => {
                     })
                 }
                 else {
+                    const modifiedResult = {
+                        _id: result[0]._id,
+                        name: result[0].name,
+                        bio: result[0].bio,
+                        image: result[0].image,
+                        sendEmail: result[0].sendEmail,
+                        sendNotification: result[0].sendNotification,
+                    }
+                    
+                    result = await userFollowingModel.find({_id: headers.followingId}, 'followingCount');
+                    modifiedResult.followingsCount = result[0].followingCount;
+
+                    result = await userFollowersModel.find({_id: headers.followerId}, 'followerCount');
+                    modifiedResult.followersCount = result[0].followerCount;
+
+                    result = await blogPostModel.find({author: headers.uid}).countDocuments();
+                    modifiedResult.postsCount = result;
+                    
                     res.status(200).json({
-                    result: result[0],
+                    result: modifiedResult,
                     msg: "User Details Fetched Successfully"
                 })
             }
