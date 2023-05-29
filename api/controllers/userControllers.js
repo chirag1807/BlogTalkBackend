@@ -86,7 +86,7 @@ const getUser = (req, res) => {
     const getParticularUser = async () => {
             const headers = req.headers;
             try {
-                let result = await userModel.find({_id: headers.uid})
+                let result = await userModel.find({_id: headers.id == "" ? headers.uid : headers.id})
                 // .populate("followers").populate("favTopics");
                 if(result[0] == undefined){
                     res.status(401).json({
@@ -135,8 +135,6 @@ const postUser = (req, res) => {
             var locaFilePath = req.file.path;
 
             var dataAndUrl = await uploadToCloudinary(locaFilePath);
-            console.log(dataAndUrl);
-            
             }
 
             bcrypt.hash(req.body.password, 10, async (err, hash) => {
@@ -232,11 +230,18 @@ async function uploadToCloudinary(locaFilePath) {
 const updateNameBio = (req, res) => {
     const updateUserNameBio = async () => {
         try{
+            if(req.file){
+
+                var locaFilePath = req.file.path;
+    
+                var dataAndUrl = await uploadToCloudinary(locaFilePath);
+            }
             const {name, bio} = req.body;
             const user = await userModel.findOneAndUpdate({_id: req.headers.uid}, {
                 $set:{
                     name: name,
-                    bio: bio
+                    bio: bio,
+                    image: req.file ? dataAndUrl.url : "",
                 }
             })
             if(user){

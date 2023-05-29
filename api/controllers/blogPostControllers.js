@@ -16,7 +16,7 @@ const getAllPosts = (req, res) => {
     const getUsersAllPost = async () => {
         const headers = req.headers;
         try{
-            const result = await blogPostModel.find({author: headers.uid});
+            const result = await blogPostModel.find({author: headers.id == "" ? headers.uid : headers.id});
                 if(result == undefined){
                     res.status(204).json({
                         msg: "No Blog Post Available for this User"
@@ -83,6 +83,12 @@ const getParticularPosts = (req, res) => {
                     else{
                         modifiedResult.likedOrNot = 0;
                     }
+                    if(modifiedResult.author._id == result1.uid){
+                        modifiedResult.createdByYou = 1;
+                    }
+                    else{
+                        modifiedResult.createdByYou = 0;
+                    }
                     // if(modifiedResult.views.includes(result1.uid)){
                     //     modifiedResult.viewedOrNot = 1;
                     // }
@@ -139,7 +145,7 @@ const uploadPost = (req, res) => {
                 topic: parseInt(req.body.topic),
                 author: headers.uid,
                 coverImage: req.file ? dataAndUrl.url : "",
-                readMinute: Math.ceil(readTimeMinutes),
+                readMinute: Math.ceil(readTimeMinutes)
             });
 
             const result = await post.save();
