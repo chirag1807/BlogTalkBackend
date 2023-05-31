@@ -4,6 +4,7 @@ const savePostModel = require("../models/savePostModel");
 const favTopicsModel = require("../models/favTopicsModel");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const path = require('path');
 const jwt = require("jsonwebtoken");
 const secret_key_Access_Token = process.env.secret_key_Access_Token;
 const cron = require("node-cron");
@@ -18,7 +19,11 @@ cloudinary.config({
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("F:/Blog app/fcm/fcmFile.json");
+const secretFilePath = process.env.FCM_JSON;
+const absoluteFilePath = path.resolve(secretFilePath);
+const secretFileContent = fs.readFileSync(absoluteFilePath, 'utf8');
+const serviceAccount = JSON.parse(secretFileContent);
+
 const userFollowersModel = require("../models/userFollowersModel");
 const notificationModel = require("../models/notificationModel");
 
@@ -423,17 +428,33 @@ const updatePostIncrView = (req, res) => {
 
 const deletePost = (req, res) => {
   const deleteUserPost = async () => {
-    try {
-      const result = await blogPostModel.deleteOne({ _id: req.body.id });
-      res.status(200).json({
-        // result: result[0],
-        msg: "Post Deleted Successfully",
-      });
-    } catch (error) {
-      res.status(400).json({
-        msg: "Can't fetch User Details",
-      });
+    // try {
+    //   const result = await blogPostModel.deleteOne({ _id: req.body.id });
+    //   res.status(200).json({
+    //     // result: result[0],
+    //     msg: "Post Deleted Successfully",
+    //   });
+    // } catch (error) {
+    //   res.status(400).json({
+    //     msg: "Can't fetch User Details",
+    //   });
+    // }
+
+    const message = {
+      data: {
+        title: "New Notification",
+        body: "Someone Posted a Blog",
+      },
+      token: "cVRi3A42Qj6_SiPovust2t:APA91bGi3fV9B6l46Sz48hC8IFt7y3XbwJBNjAkiKqN-YANvKVJeJPdL61SIARZvU0vd6wQjW0z1GmlQMP0wWJ0ty15nBGcluTCoo9_xe8JM0rIKqqRDfi8wSS8uC5icyqkEIM9OQe9t"
     }
+
+    admin.messaging().send(message)
+    .then((result) => {
+      console.log(result + " : Notification has been sent...");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   };
   deleteUserPost();
 };
