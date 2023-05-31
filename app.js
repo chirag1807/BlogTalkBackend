@@ -12,6 +12,7 @@ const blogPostRoute = require('./api/routes/blogPostRoutes');
 const savePostRoute = require('./api/routes/savePostRoutes');
 const topicNameIdRoute = require('./api/routes/topicNameIds');
 const updateFollowersFollowings = require('./api/routes/updateFollowersFollowings');
+const notifications = require('./api/routes/notification');
 
 mongoose.connect(process.env.mongoose_link_for_connection);
 
@@ -37,6 +38,7 @@ app.use('/api/blogPost', blogPostRoute);
 app.use('/api/savePost', savePostRoute);
 app.use('/api/topicNameId', topicNameIdRoute);
 app.use('/api/updateFollowersFollowings', updateFollowersFollowings);
+app.use('/api/notifications', notifications);
 
 app.use('/', (req, res) => {
     res.status(200).json(({

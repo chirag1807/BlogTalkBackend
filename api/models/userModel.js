@@ -68,6 +68,15 @@ const userSchema = mongoose.Schema({
         ref: 'Muted',
         require: true,
         auto: true
+    },
+    notification: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'notificationSchema',
+        require: true,
+        auto: true
+    },
+    deviceToken: {
+        type: String
     }
 });
 

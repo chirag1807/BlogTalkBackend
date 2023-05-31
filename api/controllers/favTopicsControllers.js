@@ -47,10 +47,10 @@ const setFavTopics = (req, res) => {
             })
     
         } catch (error) {
+            console.log(error);
             res.status(400).json({
                 msg: error
             })
-            console.log(error);
         }
     }
     

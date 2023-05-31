@@ -2,8 +2,9 @@ const userModel = require('../models/userModel');
 const forgotPasswordCodeModel = require('../models/forgotPasswordCodeModel');
 const userFollowingModel = require('../models/userFollowingModel');
 const userFollowersModel = require('../models/userFollowersModel');
-const mutedModel = require('../models/mutedModel');
+const favTopicsModel = require('../models/favTopicsModel');
 const blogPostModel = require('../models/blogPostModel');
+const notificationModel = require('../models/notificationModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const sgMail = require('@sendgrid/mail');
@@ -20,13 +21,14 @@ cloudinary.config({
     api_secret: process.env.api_secret
   });
 
-const generateAccessToken = (uid, favTopicsId, followerId, followingId, mutedId) => {
+const generateAccessToken = (uid, favTopicsId, followerId, followingId, mutedId, notificationId) => {
     const accessToken = jwt.sign({
         uid: uid,
         favTopicsId: favTopicsId,
         followerId: followerId,
         followingId: followingId,
-        mutedId: mutedId
+        mutedId: mutedId,
+        notificationId: notificationId
     },
     secret_key_Access_Token,
     {
@@ -37,13 +39,14 @@ const generateAccessToken = (uid, favTopicsId, followerId, followingId, mutedId)
     return accessToken;
 }
 
-const generateRefreshToken = (uid, favTopicsId, followerId, followingId, mutedId) => {
+const generateRefreshToken = (uid, favTopicsId, followerId, followingId, mutedId, notificationId) => {
     const refreshToken = jwt.sign({
         uid: uid,
         favTopicsId: favTopicsId,
         followerId: followerId,
         followingId: followingId,
-        mutedId: mutedId
+        mutedId: mutedId,
+        notificationId: notificationId
     },
     secret_key_Refresh_Token,
     {
@@ -66,9 +69,9 @@ const resetToken = (req, res) => {
             }
             else{
                 const accessToken = generateAccessToken(payload.uid, payload.favTopicsId,
-                    payload.followerId, payload.followingId, payload.mutedId);
+                    payload.followerId, payload.followingId, payload.mutedId, payload.notificationId);
                 refreshToken = generateRefreshToken(payload.uid, payload.favTopicsId,
-                    payload.followerId, payload.followingId, payload.mutedId);
+                    payload.followerId, payload.followingId, payload.mutedId, payload.notificationId);
 
                 res.status(200).json({
                     accessToken: accessToken,
@@ -150,6 +153,7 @@ const postUser = (req, res) => {
                         emailId: req.body.emailId,
                         password: hash,
                         image: req.file ? dataAndUrl.url : "",
+                        deviceToken: req.body.deviceToken,
                     })
                     const result = await user.save();
 
@@ -162,11 +166,21 @@ const postUser = (req, res) => {
                         _id: result.followings,
                     })
                     await userFollowings.save();
-                    
-                    const mutedTopicWriters = new mutedModel({
-                        _id: result.muted,
+
+                    const favTopics = new favTopicsModel({
+                        _id: result.favTopics,
                     })
-                    await mutedTopicWriters.save();
+                    await favTopics.save();
+
+                    const notification = new notificationModel({
+                        _id: result.notification,
+                    })
+                    await notification.save();
+                    
+                    // const mutedTopicWriters = new mutedModel({
+                    //     _id: result.muted,
+                    // })
+                    // await mutedTopicWriters.save();
 
                     // const addUid = await userModel.findOneAndUpdate({_id: result._id},
                     //     {
@@ -175,11 +189,9 @@ const postUser = (req, res) => {
                     // )
 
                     const accessToken = generateAccessToken(result._id,
-                        result.favTopics, result.followers, result.followings, result.muted);
+                        result.favTopics, result.followers, result.followings, result.muted, result.notification);
                     const refreshToken = generateRefreshToken(result._id,
-                        result.favTopics, result.followers, result.followings, result.muted);
-
-                    console.log(result.followers.id);
+                        result.favTopics, result.followers, result.followings, result.muted, result.notification);
                     
                     res.status(200).json({
                         result: result,
@@ -348,7 +360,7 @@ const updateSendEMailNotification = (req, res) => {
 
 const loginUser = (req, res) => {
     const loginParticularUser = async () => {
-        const {email, password} = req.body;
+        const {email, password, deviceToken} = req.body;
         const user = await userModel.find({emailId: email});
         bcrypt.compare(password, user[0].password, (err, result) => {
             if(!result){
@@ -358,9 +370,13 @@ const loginUser = (req, res) => {
             }
             else{
                 const accessToken = generateAccessToken(user[0]._id, user[0].favTopics,
-                    user[0].followers, user[0].followings, user[0].muted);
+                    user[0].followers, user[0].followings, user[0].muted, user[0].notification);
                 const refreshToken = generateRefreshToken(user[0]._id, user[0].favTopics,
-                    user[0].followers, user[0].followings, user[0].muted);
+                    user[0].followers, user[0].followings, user[0].muted, user[0].notification);
+                if(user[0].deviceToken != deviceToken){
+                    user[0].deviceToken = deviceToken;
+                    user[0].save();
+                }
                 return res.status(200).json({
                     result: user[0],
                     accessToken: accessToken,
@@ -369,6 +385,17 @@ const loginUser = (req, res) => {
                 })
             }
         })
+
+        // const notification = new notificationModel({
+        //     // _id: "64771d9eaa14f883ff2478f3",
+        // })
+        // await notification.save();
+
+        // const user = await userModel.find({_id: "647591977adb8750fadbdea3"}).populate("notification");
+        // res.status(200).json({
+        //     res: user
+        // })
+
     }
 
     loginParticularUser();
