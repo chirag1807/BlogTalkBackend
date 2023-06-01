@@ -231,7 +231,8 @@ const uploadPost = (req, res) => {
           "userId": headers.uid,
           "blogId": result._id,
           "content": "has Posted a Blog",
-          "image": authorNameImg[0].image
+          "image": authorNameImg[0].image,
+          "topic": result.topic,
         }
         const notification = await notificationModel.findOneAndUpdate({_id: user1[0].notification},
           {
@@ -421,33 +422,17 @@ const updatePostIncrView = (req, res) => {
 
 const deletePost = (req, res) => {
   const deleteUserPost = async () => {
-    // try {
-    //   const result = await blogPostModel.deleteOne({ _id: req.body.id });
-    //   res.status(200).json({
-    //     // result: result[0],
-    //     msg: "Post Deleted Successfully",
-    //   });
-    // } catch (error) {
-    //   res.status(400).json({
-    //     msg: "Can't fetch User Details",
-    //   });
-    // }
-
-    const message = {
-      data: {
-        title: "New Notification",
-        body: "Someone Posted a Blog",
-      },
-      token: "cVRi3A42Qj6_SiPovust2t:APA91bGi3fV9B6l46Sz48hC8IFt7y3XbwJBNjAkiKqN-YANvKVJeJPdL61SIARZvU0vd6wQjW0z1GmlQMP0wWJ0ty15nBGcluTCoo9_xe8JM0rIKqqRDfi8wSS8uC5icyqkEIM9OQe9t"
+    try {
+      const result = await blogPostModel.deleteOne({ _id: req.body.id });
+      res.status(200).json({
+        // result: result[0],
+        msg: "Post Deleted Successfully",
+      });
+    } catch (error) {
+      res.status(400).json({
+        msg: "Can't fetch User Details",
+      });
     }
-
-    admin.messaging().send(message)
-    .then((result) => {
-      console.log(result + " : Notification has been sent...");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
   };
   deleteUserPost();
 };

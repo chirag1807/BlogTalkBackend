@@ -68,7 +68,8 @@ router.patch("/", verifyToken, async (req, res) => {
         "userId": headers.uid,
         "blogId": "",
         "content": "has Started a Following You",
-        "image": user4[0].image
+        "image": user4[0].image,
+        "topic": 1,
       };
       const notification = await notificationModel.findOneAndUpdate(
         { _id: user3[0].notification },

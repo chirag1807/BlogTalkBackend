@@ -7,10 +7,9 @@ router.get("/", verifyToken, async (req, res) => {
   try {
     const headers = req.headers;
     const notifications = await notificationModel.find({_id: headers.notificationId});
-    console.log(notifications);
 
     res.status(200).json({
-        notifications: notifications[0],
+        notifications: notifications[0].notificationContent,
     })
   } catch (e) {
     console.log(e);
