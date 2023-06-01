@@ -2,6 +2,8 @@ const blogPostModel = require("../models/blogPostModel");
 const userModel = require("../models/userModel");
 const savePostModel = require("../models/savePostModel");
 const favTopicsModel = require("../models/favTopicsModel");
+const userFollowersModel = require("../models/userFollowersModel");
+const notificationModel = require("../models/notificationModel");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
@@ -18,13 +20,7 @@ cloudinary.config({
 
 const admin = require("firebase-admin");
 
-const secretFilePath = process.env.FCM_JSON;
-const serviceAccount = require(secretFilePath);
-
-const userFollowersModel = require("../models/userFollowersModel");
-const notificationModel = require("../models/notificationModel");
-
-console.log("3");
+const serviceAccount = JSON.parse(process.env.FCM_JSON);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
