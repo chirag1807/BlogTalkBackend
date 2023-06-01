@@ -89,7 +89,7 @@ const getUser = (req, res) => {
     const getParticularUser = async () => {
             const headers = req.headers;
             try {
-                let result = await userModel.find({_id: headers.id == "" ? headers.uid : headers.id})
+                let result = await userModel.find({_id: headers.id == undefined ? headers.uid : headers.id});
                 // .populate("followers").populate("favTopics");
                 if(result[0] == undefined){
                     res.status(401).json({
@@ -106,14 +106,14 @@ const getUser = (req, res) => {
                         sendNotification: result[0].sendNotification,
                     }
                     
-                    result = await userFollowingModel.find({_id: headers.followingId}, 'followingCount');
-                    modifiedResult.followingsCount = result[0].followingCount;
+                    let result1 = await userFollowingModel.find({_id: headers.id == undefined ? headers.followingId : result[0].followings}, 'followingCount');
+                    modifiedResult.followingsCount = result1[0].followingCount;
 
-                    result = await userFollowersModel.find({_id: headers.followerId}, 'followerCount');
-                    modifiedResult.followersCount = result[0].followerCount;
+                    result1 = await userFollowersModel.find({_id: headers.id == undefined ? headers.followerId : result[0].followers}, 'followerCount');
+                    modifiedResult.followersCount = result1[0].followerCount;
 
-                    result = await blogPostModel.find({author: headers.uid}).countDocuments();
-                    modifiedResult.postsCount = result;
+                    result1 = await blogPostModel.find({author: headers.id == undefined ? headers.uid : result[0]._id}).countDocuments();
+                    modifiedResult.postsCount = result1;
                     
                     res.status(200).json({
                     result: modifiedResult,
