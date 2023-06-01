@@ -4,7 +4,6 @@ const savePostModel = require("../models/savePostModel");
 const favTopicsModel = require("../models/favTopicsModel");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
-const path = require('path');
 const jwt = require("jsonwebtoken");
 const secret_key_Access_Token = process.env.secret_key_Access_Token;
 const cron = require("node-cron");
