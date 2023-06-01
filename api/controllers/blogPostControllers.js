@@ -18,9 +18,8 @@ cloudinary.config({
 
 const admin = require("firebase-admin");
 
-const secretFilePath = require('/etc/secrets/FCM_JSON.json');
-const secretFileContent = fs.readFileSync(secretFilePath, 'utf8');
-const serviceAccount = JSON.parse(secretFileContent);
+const secretFilePath = process.env.FCM_JSON;
+const serviceAccount = require(secretFilePath);
 
 const userFollowersModel = require("../models/userFollowersModel");
 const notificationModel = require("../models/notificationModel");
