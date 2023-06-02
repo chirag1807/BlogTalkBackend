@@ -31,6 +31,8 @@ router.route('/forgot-password').post(userControllers.forgotPasswordSendEmail);
 
 router.route('/verify-code').post(userControllers.forgotPasswordVerifyCode);
 
+router.post('/changePassword', verifyToken, userControllers.updatePassword);
+
 router.post('/', upload.single("image"), userControllers.postUser);
 
 router.patch('/', upload.single("image"), verifyToken, userControllers.updateNameBio);
