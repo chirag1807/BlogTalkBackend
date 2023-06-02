@@ -7,6 +7,8 @@ const savePostController = require('../controllers/savePostControllers');
 
 router.get('/', verifyToken,  homeAndSearchController.getTopicPosts, savePostController.getParticularPost);
 
-// router.get('/post', verifyToken)
+router.get('/foryou', homeAndSearchController.getForYouPosts, savePostController.getParticularPost);
+
+router.get('/search', verifyToken, homeAndSearchController.searchPosts, savePostController.getParticularPost);
 
 module.exports = router;
